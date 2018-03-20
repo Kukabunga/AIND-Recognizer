@@ -137,20 +137,19 @@ class SelectorCV(ModelSelector):
     def select(self):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        b_cv = None
+        b_model = None
         b_score = float('-inf')
         for n in range(self.min_n_components, self.max_n_components + 1):
             try:
                 s = []
                 model = self.base_model(n)
-                for (train, test) in KFold()(self.sequences):
+                for train, test in KFold(n_splits=4)(self.sequences):
                     self.X, self.lengths = combine_sequences(train, self.sequences)
-                    x, lengths = combine_sequences(test, self.sequences)
-                    s.append(self.base_model(n).score(x, lengths))
-                cv_score = np.mean(s)
-                if cv_score > b_score:
-                    b_score = cv_score
-                    b_cv = model
+                    s.append(model.scorecombine_sequences(test, self.sequences))
+                score = np.mean(s)
+                if score > b_score:
+                    b_score = score
+                    b_model = model
             except:
                 pass
-        return b_cv
+        return b_model if b_model else self.base_model(self.n_constant)
