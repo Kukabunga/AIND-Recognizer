@@ -143,13 +143,15 @@ class SelectorCV(ModelSelector):
             try:
                 s = []
                 model = self.base_model(n)
-                for train, test in KFold(n_splits=4)(self.sequences):
+                folds = KFold(n_splits=2)
+                for train, test in folds.split(self.sequences):
                     self.X, self.lengths = combine_sequences(train, self.sequences)
-                    s.append(model.scorecombine_sequences(test, self.sequences))
+                    x, lengths = combine_sequences(test, self.sequences)
+                    s.append(self.base_model(n).score(x, lengths))
                 score = np.mean(s)
                 if score > b_score:
                     b_score = score
                     b_model = model
             except:
-                pass
-        return b_model if b_model else self.base_model(self.n_constant)
+                continue
+        return b_model

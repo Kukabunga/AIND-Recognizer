@@ -20,7 +20,7 @@ def recognize(models: dict, test_set: SinglesData):
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     probabilities = []
     guesses = []
-    for x, lengths in test_set.get_all_Xlengths.values():
+    for x, lengths in test_set.get_all_Xlengths().values():
         b_score = float('-inf')
         b_guess = None
         l = {}
@@ -30,11 +30,9 @@ def recognize(models: dict, test_set: SinglesData):
                 l[w] = score
                 if score > b_score:
                     b_score = score
-                    b_guess = m
+                    b_guess = w
             except:
                 l[w] = float('-inf')
-            probabilities.append(l)
-            guesses.append(b_guess)
+        probabilities.append(l)
+        guesses.append(b_guess)
     return probabilities, guesses
-            
-            
